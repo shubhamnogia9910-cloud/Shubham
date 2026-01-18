@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Metflic • Movies & Series</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#06090d;
+  --card:#0f1418;
+  --muted:#9aa4ad;
+  --accent:#e50914;
+  --glass:rgba(255,255,255,.08);
+  --max:1300px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#06090d;
+  color:#e6eef3;
+  font-family:Inter,system-ui;
+}
+.container{max-width:var(--max);margin:auto;padding:16px}
+
+/* HEADER */
+header{display:flex;justify-content:space-between;align-items:center}
+.logo{display:flex;gap:10px;align-items:center}
+.logo .m{
+  width:44px;height:44px;
+  background:var(--accent);
+  border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:800;
+}
+
+/* SEARCH */
+.search{
+  background:var(--glass);
+  padding:8px 14px;
+  border-radius:12px;
+}
+.search input{
+  background:none;border:0;outline:none;
+  color:#fff;width:220px;
+}
+
+/* CATEGORY BUTTONS */
+.catbar{
+  margin:18px 0;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.cat{
+  padding:8px 16px;
+  border-radius:999px;
+  border:2px solid var(--accent);
+  background:#000;
+  color:#fff;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+}
+.cat:hover{background:var(--accent)}
+
+/* HERO */
+.hero{
+  position:relative;
+  margin-top:14px;
+  border-radius:18px;
+  overflow:hidden;
+}
+.hero-blur{
+  position:absolute;
+  inset:0;
+  background-size:cover;
+  background-position:center;
+  filter:blur(28px) brightness(.45);
+  transform:scale(1.1);
+
+  z-index:0;   /* 👈 यही add करना है */
+}
+/* 🔥 HERO CINEMATIC OVERLAY (ADD HERE) */
+.hero::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(
+    to top,
+    rgba(6,9,13,.85),
+    rgba(6,9,13,.35),
+    rgba(6,9,13,.15)
+  );
+  pointer-events:none;
+
+  z-index:1;   /* 👈 add here */
+}
+.hero-inner{
+  position:relative;
+  display:flex;
+  gap:24px;
+  padding:22px;
+  background:linear-gradient(
+    to right,
+    rgba(6,9,13,.85),
+    rgba(6,9,13,.55)
+  );
+
+  z-index:2;   /* 👈 add here */
+}
+.hero-poster{
+  width:260px;
+  height:380px;
+  background-size:cover;
+  background-position:center;
+  border-radius:14px;
+  box-shadow:0 25px 80px rgba(0,0,0,.85);
+}
+.hero-meta h1{margin:0;font-size:34px}
+.hero-meta p{
+  color:#cfd8de;
+  line-height:1.6;
+  max-width:650px;
+}
+.hero-actions{margin-top:14px;display:flex;gap:12px}
+.btn{
+  padding:12px 24px;
+  border-radius:12px;
+  font-weight:800;
+  border:0;
+  cursor:pointer;
+}
+.btn.red{background:var(--accent);color:#fff}
+.btn.dark{background:#111;color:#fff}
+
+/* SECTIONS */
+.section{margin-top:40px}
+.section-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.seeall{color:var(--accent);cursor:pointer;font-weight:700}
+.row{
+  display:flex;
+  gap:14px;
+  overflow-x:auto;
+}
+.card{
+  min-width:180px;
+  background:var(--card);
+  padding:8px;
+  border-radius:10px;
+  cursor:pointer;
+}
+.card img{
+  width:100%;
+  height:260px;
+  object-fit:cover;
+  border-radius:8px;
+}
+.card .t{font-size:14px;font-weight:700;margin-top:6px}
+.card .y{font-size:12px;color:var(--muted)}
+
+footer{text-align:center;color:var(--muted);margin:40px 0 20px}
+
+@media(max-width:900px){
+  .hero-inner{flex-direction:column}
+  .hero-poster{width:200px;height:300px}
+}
+/* 🔥 DOWNLOAD MODAL CSS (ADD AT STYLE END) */
+#dlModal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.7);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+#dlBox{
+  background:#0f1418;
+  padding:20px;
+  border-radius:14px;
+  width:92%;
+  max-width:420px;
+}
+.dlGroup{margin-bottom:14px}
+.dlGroup b{display:block;margin-bottom:6px}
+.dlGroup button{
+  margin:4px;
+  padding:8px 14px;
+  border-radius:999px;
+  border:1px solid #333;
+  background:#111;
+  color:#fff;
+  cursor:pointer;
+}
+.dlGroup button.active{
+  background:var(--accent);
+  border-color:var(--accent);
+}
+#dlConfirm{
+  width:100%;
+  padding:12px;
+  font-weight:800;
+  background:var(--accent);
+  border:0;
+  border-radius:12px;
+         }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<header>
+  <div class="logo"><div class="m">M</div><strong>Metflic</strong></div>
+  <div class="search"><input id="searchInput" placeholder="Search movies..."></div>
+</header>
+
+<!-- 🔥 CATEGORY BUTTONS (NO category.html ANYMORE) -->
+<nav class="catbar">
+  <div class="cat" onclick="goPage('/')">Movies</div>
+  <div class="cat" onclick="goPage('/tv')">TV</div>
+  <div class="cat" onclick="goPage('/web')">Web Series</div>
+  <div class="cat" onclick="goPage('/anime')">Anime</div>
+  <div class="cat" onclick="goPage('/cartoon')">Cartoon</div>
+  <div class="cat" onclick="goPage('/drama')">Drama</div>
+  <div class="cat" onclick="goPage('/horror')">Horror</div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-blur" id="heroBlur"></div>
+  <div class="hero-inner">
+    <div class="hero-poster" id="heroPoster"></div>
+    <div class="hero-meta">
+      <h1 id="heroTitle">Metflic</h1>
+      <p id="heroDesc">Discover movies & series instantly</p>
+      <div class="hero-actions">
+        <button class="btn red" id="heroDownload">Download</button>
+        <button class="btn dark" id="heroDetail">View Details</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<section class="section">
+  <div class="section-head"><h2>Latest</h2><div class="seeall" onclick="seeAll('latest')">See All →</div></div>
+  <div class="row" id="latest"></div>
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>Popular</h2><div class="seeall" onclick="seeAll('popular')">See All →</div></div>
+  <div class="row" id="popular"></div>
+</section>
+
+<section class="section">
+  <div class="section-head"><h2>Random</h2><div class="seeall" onclick="seeAll('random')">See All →</div></div>
+  <div class="row" id="random"></div>
+</section>
+  
+<!-- 🔥 DOWNLOAD OPTIONS MODAL (ADD ABOVE FOOTER) -->
+<div id="dlModal" style="display:none">
+  <div id="dlBox">
+    <h3>Select Download Option</h3>
+    <div id="dlOptions"></div>
+    <button id="dlConfirm" disabled>Continue</button>
+  </div>
+</div>
+<footer>© Metflic • Telegram Powered</footer>
+</div>
+
+<script>
+/* ================== CONFIG ================== */
+const API = location.origin;
+const BOT = "CinemaWorldMoviesBot";
+const FALLBACK = "https://via.placeholder.com/500x750?text=No+Poster";
+
+/* ================== HELPERS ================== */
+function tg(slug){
+  return `https://t.me/${BOT}?start=${encodeURIComponent(slug)}`;
+}
+
+function goPage(url){
+  location.href = url;
+}
+
+function seeAll(type){
+  location.href = "/list.html?type=" + encodeURIComponent(type);
+}
+
+function safePoster(p){
+  if(!p) return FALLBACK;
+  if(p.startsWith("http")) return p;
+  if(p.startsWith("/")) return "https://image.tmdb.org/t/p/w500" + p;
+  return FALLBACK;
+}
+
+function getSlugFromPath(){
+  const p = location.pathname.split("/");
+  if(p[1] === "movie" && p[2]) return decodeURIComponent(p[2]);
+  return "";
+}
+
+/* ================== HERO ================== */
+function setHero(m){
+  if(!m) return;
+
+  const poster = safePoster(m.poster);
+
+  heroPoster.style.backgroundImage = `url("${poster}")`;
+  heroBlur.style.backgroundImage   = `url("${poster}")`;
+
+  heroTitle.textContent = m.title || "Unknown";
+  heroDesc.textContent  = m.overview || "";
+
+  if(heroDownload)
+  heroDownload.onclick = ()=>{
+  const ref = m.tg || m.slug;   // ✅ message_id first, slug fallback
+  openDownloadOptions(m.slug);
+};
+
+  if(heroDetail)
+    heroDetail.onclick = ()=>location.href =
+      "/detail.html?slug="+encodeURIComponent(m.slug);
+}
+
+/* ================== CARD ================== */
+function card(m){
+  const d = document.createElement("div");
+  d.className = "card";
+  d.innerHTML = `
+    <img src="${safePoster(m.poster)}">
+    <div class="t">${m.title}</div>
+    <div class="y">${m.year || ""}</div>
+  `;
+  d.onclick = ()=>location.href =
+    "/detail.html?slug="+encodeURIComponent(m.slug);
+  return d;
+}
+
+/* ================== MAIN ================== */
+async function loadHome(){
+
+  let heroLocked = false; // 🔒 hero overwrite protection
+
+  /* 🟢 1️⃣ SLUG MODE (Telegram → /movie/<slug>) */
+  const slug = getSlugFromPath();
+  if(slug){
+    try{
+      const r = await fetch(
+        API + "/api/movie_hero?slug=" + encodeURIComponent(slug)
+      ).then(r=>r.json());
+
+      if(r.ok && r.result){
+        setHero(r.result);
+        heroLocked = true; // 🔒 lock hero
+      }
+    }catch(e){
+      console.error("hero slug error", e);
+    }
+  }
+
+  /* 🔍 2️⃣ SEARCH MODE (?q=) */
+  const params = new URLSearchParams(location.search);
+  const q = params.get("q");
+
+  if(q){
+    try{
+      const h = await fetch(
+        API + "/api/home?q=" + encodeURIComponent(q)
+      ).then(r=>r.json());
+
+      if(h.ok && h.hero && !heroLocked){
+        setHero(h.hero);
+      }
+
+      const s = await fetch(
+        API + "/api/search?q=" + encodeURIComponent(q)
+      ).then(r=>r.json());
+
+      if(s.ok && s.result){
+        const box = document.getElementById("popular");
+        if(box){
+          box.innerHTML = "";
+          s.result.forEach(m=>box.appendChild(card(m)));
+        }
+      }
+    }catch(e){
+      console.error("search error", e);
+    }
+    return; // 🔍 search ke baad home load nahi
+  }
+
+  /* 🏠 3️⃣ NORMAL HOME (sections ALWAYS load) */
+  try{
+    const r = await fetch(API + "/api/home").then(r=>r.json());
+    if(!r.ok) return;
+
+    // ❗ hero overwrite mat karo agar slug se aaya hai
+    if(r.hero && !heroLocked){
+      setHero(r.hero);
+    }
+
+    ["latest","popular","random"].forEach(k=>{
+      const box = document.getElementById(k);
+      if(!box) return;
+      box.innerHTML = "";
+      (r[k] || []).forEach(m=>box.appendChild(card(m)));
+    });
+
+  }catch(e){
+    console.error("home error", e);
+  }
+  }
+
+/* ================== SEARCH BOX ================== */
+if(window.searchInput){
+  searchInput.addEventListener("keydown",e=>{
+    if(e.key==="Enter"){
+      const q = searchInput.value.trim();
+      if(q.length>1)
+        location.href="/?q="+encodeURIComponent(q);
+    }
+  });
+}
+
+/* ================== DOWNLOAD OPTIONS SYSTEM ================== */
+
+const dlModal   = document.getElementById("dlModal");
+const dlOptions = document.getElementById("dlOptions");
+const dlConfirm = document.getElementById("dlConfirm");
+
+let dlSelected = {};
+let dlSlug = "";
+
+function openDownloadOptions(slug){
+  dlSlug = slug;
+  dlSelected = {};
+  dlOptions.innerHTML = "";
+  dlConfirm.disabled = true;
+  dlModal.style.display = "flex";
+
+  fetch(API + "/api/movie_versions?slug=" + encodeURIComponent(slug))
+    .then(r=>r.json())
+    .then(d=>{
+      if(!d.ok) return;
+      renderDlOptions(d.versions);
+    });
+  }
+
+function renderDlOptions(rows){
+  dlOptions.innerHTML = "";
+
+  rows.forEach(r=>{
+    const b = document.createElement("button");
+
+    let label = [];
+    if(r.season)  label.push("S" + r.season);
+    if(r.episode) label.push("E" + r.episode);
+    if(r.language) label.push(r.language);
+    if(r.quality)  label.push(r.quality);
+    if(r.year)     label.push(r.year);
+
+    b.textContent = label.join(" • ") || "Default";
+
+    b.onclick = ()=>{
+      dlSelected = { message_id: r.message_id };   // 🔥 ONLY ID (STRONG BOND)
+      [...dlOptions.querySelectorAll("button")]
+        .forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");
+      dlConfirm.disabled = false;
+    };
+
+    dlOptions.appendChild(b);
+  });
+  }
+
+dlConfirm.onclick = ()=>{
+  if(!dlSelected.id){
+    alert("Select a version first");
+    return;
+  }
+
+  // 🔥 STRONG BOND: ONLY DB ID GOES TO BOT
+  location.href =
+    `https://t.me/${BOT}?start=id-${dlSelected.id}`;
+};
+  
+dlModal.onclick = e=>{
+  if(e.target === dlModal) dlModal.style.display = "none";
+};
+loadHome();
+</script>
+</body>
+  </html>
