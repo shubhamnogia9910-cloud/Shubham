@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Metflic • Drama</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#07060a;
+  --card:#141018;
+  --pink:#ff6f91;
+  --muted:#cfc6d4;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:linear-gradient(180deg,#120812,#07060a);
+  color:#fff;
+  font-family:Inter;
+}
+.container{max-width:1100px;margin:auto;padding:16px}
+
+/* HEADER */
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.logo{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+.logo .m{
+  width:42px;height:42px;
+  background:linear-gradient(135deg,#ff6f91,#ff9aa2);
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+}
+.search input{
+  padding:10px 14px;
+  border-radius:14px;
+  border:0;
+  outline:none;
+  background:#1b1620;
+  color:#fff;
+}
+
+/* LIST */
+.list{
+  margin-top:24px;
+  display:flex;
+  flex-direction:column;
+  gap:22px;
+}
+
+/* CARD */
+.card{
+  display:flex;
+  gap:16px;
+  background:var(--card);
+  border-radius:18px;
+  overflow:hidden;
+}
+.card img{
+  width:150px;
+  height:225px;
+  object-fit:cover;
+}
+.card .info{
+  padding:14px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+}
+.card .title{
+  font-size:18px;
+  font-weight:800;
+}
+.card .year{
+  font-size:13px;
+  color:var(--muted);
+  margin-top:4px;
+}
+.card .overview{
+  margin-top:10px;
+  line-height:1.55;
+  color:#e6ddea;
+  font-size:14px;
+}
+
+/* PAGINATION */
+.pagination{
+  margin:30px 0 10px;
+  display:flex;
+  justify-content:center;
+  gap:10px;
+}
+.page{
+  padding:8px 14px;
+  background:#1b1620;
+  border-radius:10px;
+  cursor:pointer;
+  font-weight:600;
+}
+.page.active{
+  background:var(--pink);
+  color:#000;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<header>
+  <div class="logo">
+    <div class="m">D</div>
+    <strong>Drama</strong>
+  </div>
+  <div class="search">
+    <input id="searchInput" placeholder="Search drama…">
+  </div>
+</header>
+
+<div class="list" id="list"></div>
+<div class="pagination" id="pagination"></div>
+
+</div>
+
+<script>
+const API = location.origin;
+const FALLBACK = "https://via.placeholder.com/300x450?text=Drama";
+
+let page = 1;
+let q = "";
+const LIMIT = 6;
+let CACHE = [];
+
+function card(m){
+  const d = document.createElement("div");
+  d.className = "card";
+  d.innerHTML = `
+    <img src="${m.poster||FALLBACK}">
+    <div class="info">
+      <div class="title">${m.title}</div>
+      <div class="year">${m.year||""}</div>
+      <div class="overview">${m.overview||"No description available."}</div>
+    </div>`;
+  d.onclick = () => location.href = "/drama/" + m.slug;
+  return d;
+}
+
+function render(){
+  list.innerHTML="";
+  const start = (page-1)*LIMIT;
+  const chunk = CACHE.slice(start,start+LIMIT);
+  chunk.forEach(m=>list.appendChild(card(m)));
+  renderPagination(CACHE.length);
+}
+
+function renderPagination(total){
+  pagination.innerHTML="";
+  const pages = Math.ceil(total / LIMIT);
+  if(pages <= 1) return;
+
+  for(let i=1;i<=pages;i++){
+    const p=document.createElement("div");
+    p.className="page"+(i===page?" active":"");
+    p.textContent=i;
+    p.onclick=()=>{page=i; render();};
+    pagination.appendChild(p);
+  }
+}
+
+async function loadHome(){
+  const r = await fetch(API+"/api/drama/home").then(r=>r.json());
+  if(!r.ok) return;
+  CACHE = r.list || [];
+  page = 1;
+  render();
+}
+
+async function searchDrama(){
+  const r = await fetch(API+"/api/drama/search?q="+encodeURIComponent(q)).then(r=>r.json());
+  if(!r.ok) return;
+  CACHE = r.result || [];
+  page = 1;
+  render();
+}
+
+searchInput.oninput=e=>{
+  q=e.target.value.trim();
+  if(q.length < 2){
+    loadHome();
+  }else{
+    searchDrama();
+  }
+};
+
+loadHome();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Metflic • Details</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#06090d;
+  --card:#0f1418;
+  --muted:#9aa4ad;
+  --accent:#e50914;
+  --glass:rgba(255,255,255,.08);
+  --max:1200px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:linear-gradient(180deg,#040507,#06090d);
+  color:#e6eef3;
+  font-family:Inter,system-ui;
+}
+.container{max-width:var(--max);margin:auto;padding:18px}
+
+/* HERO */
+.hero{position:relative;border-radius:18px;overflow:hidden}
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;filter:blur(18px) brightness(.35);transform:scale(1.2)}
+.hero-inner{position:relative;display:flex;gap:28px;padding:26px}
+.poster{width:300px;height:440px;border-radius:16px;background-size:cover;background-position:center;box-shadow:0 40px 100px rgba(0,0,0,.8)}
+.meta h1{margin:0;font-size:38px;font-weight:800}
+.meta .year{color:var(--muted);margin-top:6px}
+
+/* INFO BAR */
+.infobar{
+  display:flex;
+  gap:14px;
+  margin-top:10px;
+  flex-wrap:wrap;
+}
+.info{
+  background:var(--glass);
+  padding:6px 12px;
+  border-radius:999px;
+  font-size:13px;
+}
+
+.meta p{
+  margin-top:16px;
+  line-height:1.65;
+  color:#d5dee5;
+  max-width:720px;
+}
+
+/* ACTIONS */
+.actions{
+  margin-top:20px;
+  display:flex;
+  gap:14px;
+  flex-wrap:wrap;
+}
+.btn{
+  padding:14px 26px;
+  border-radius:12px;
+  border:0;
+  font-weight:800;
+  font-size:15px;
+  cursor:pointer;
+}
+.btn.red{background:var(--accent);color:#fff}
+.btn.dark{background:#111;color:#fff}
+
+/* STICKY BAR */
+.sticky{
+  position:sticky;
+  bottom:14px;
+  margin-top:40px;
+  background:linear-gradient(90deg,#e50914,#b00610);
+  padding:14px;
+  border-radius:14px;
+  display:flex;
+  justify-content:center;
+  gap:16px;
+  z-index:20;
+}
+
+/* GALLERY */
+.gallery{margin-top:40px}
+.gallery h2{margin:0 0 14px 0}
+.gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:16px;
+}
+.gallery-grid img{
+  width:100%;
+  height:180px;
+  object-fit:cover;
+  border-radius:14px;
+  cursor:pointer;
+  transition:.35s;
+}
+.gallery-grid img:hover{
+  transform:scale(1.05);
+}
+
+/* MODAL IMAGE */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.95);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+.modal img{max-width:94%;max-height:94%;border-radius:12px}
+.modal span{
+  position:absolute;
+  font-size:30px;
+  cursor:pointer;
+}
+.modal .close{top:20px;right:30px}
+.modal .prev{left:20px}
+.modal .next{right:20px}
+
+/* TRAILER MODAL */
+.trailer-modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.9);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9998;
+}
+.trailer-box{
+  width:90%;
+  max-width:900px;
+  aspect-ratio:16/9;
+  background:#000;
+  border-radius:14px;
+  overflow:hidden;
+  position:relative;
+}
+.trailer-box iframe{width:100%;height:100%;border:0}
+.trailer-box .close{
+  position:absolute;
+  top:10px;
+  right:14px;
+  font-size:24px;
+  cursor:pointer;
+}
+
+/* RECOMMENDED */
+.section{margin-top:50px}
+.row{display:flex;gap:14px;overflow:auto}
+.card{min-width:170px;background:var(--card);padding:8px;border-radius:10px;cursor:pointer}
+.card img{width:100%;height:250px;object-fit:cover;border-radius:8px}
+.card .t{font-size:14px;font-weight:700;margin-top:6px}
+
+footer{text-align:center;color:var(--muted);margin:46px 0 22px}
+
+@media(max-width:900px){
+  .hero-inner{flex-direction:column}
+  .poster{width:220px;height:320px}
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<div class="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-inner">
+    <div class="poster" id="poster"></div>
+    <div class="meta">
+      <h1 id="title">Loading…</h1>
+      <div class="year" id="year"></div>
+
+      <div class="infobar" id="infobar"></div>
+
+      <p id="overview"></p>
+
+      <div class="actions">
+        <button class="btn red" id="download">⬇ Download</button>
+        <button class="btn dark" id="watchTrailer" style="display:none">▶ Trailer</button>
+        <button class="btn dark" onclick="history.back()">← Back</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sticky">
+  <button class="btn red" onclick="download.click()">⬇ Download</button>
+  <button class="btn dark" onclick="watchTrailer.click()">▶ Trailer</button>
+</div>
+
+<div class="gallery">
+  <h2>Scenes & Clips</h2>
+  <div class="gallery-grid" id="gallery"></div>
+</div>
+
+<div class="section">
+  <h2>You May Also Like</h2>
+  <div class="row" id="recommended"></div>
+</div>
+
+<footer>© Metflic • Premium Experience</footer>
+</div>
+
+<!-- IMAGE MODAL -->
+<div class="modal" id="modal">
+  <span class="close" onclick="closeImg()">✕</span>
+  <span class="prev" onclick="nav(-1)">‹</span>
+  <img id="modalImg">
+  <span class="next" onclick="nav(1)">›</span>
+</div>
+
+<!-- TRAILER MODAL -->
+<div class="trailer-modal" id="trailerModal">
+  <div class="trailer-box">
+    <span class="close" onclick="closeTrailer()">✕</span>
+    <iframe id="trailerFrame" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+  </div>
+</div>
+
+<script>
+const API=location.origin;
+const BOT="CinemaWorldMoviesBot";
+const slug=new URLSearchParams(location.search).get("slug");
+
+let galleryImgs=[],idx=0,TRAILER=null;
+
+function tg(s){return `https://t.me/${BOT}?start=${encodeURIComponent(s)}`}
+
+function openImg(i){idx=i;modal.style.display="flex";modalImg.src=galleryImgs[idx]}
+function closeImg(){modal.style.display="none"}
+function nav(d){idx=(idx+d+galleryImgs.length)%galleryImgs.length;modalImg.src=galleryImgs[idx]}
+
+function openTrailer(){
+  if(!TRAILER) return;
+  trailerFrame.src=`https://www.youtube-nocookie.com/embed/${TRAILER}?autoplay=1&modestbranding=1&rel=0`;
+  trailerModal.style.display="flex";
+}
+function closeTrailer(){
+  trailerFrame.src="";
+  trailerModal.style.display="none";
+}
+
+async function loadDetail(){
+  const r=await fetch(API+"/api/movie/"+slug).then(r=>r.json());
+  if(!r.ok) return;
+  const m=r.result;
+
+  heroBg.style.backgroundImage=`url(${m.poster})`;
+  poster.style.backgroundImage=`url(${m.poster})`;
+  title.textContent=m.title;
+  year.textContent=m.year||"";
+  overview.textContent=m.overview||"";
+
+  download.onclick = ()=>{
+  const ref = m.tg || m.slug;   // 🔥 EXACT OPTION-1
+  location.href = tg(ref);
+};
+
+  if(m.trailer){
+    TRAILER=m.trailer;
+    watchTrailer.style.display="inline-block";
+    watchTrailer.onclick=openTrailer;
+  }
+
+  infobar.innerHTML="";
+  if(m.rating) infobar.innerHTML+=`<div class="info">⭐ ${m.rating}</div>`;
+  if(m.runtime) infobar.innerHTML+=`<div class="info">⏱ ${m.runtime} min</div>`;
+  if(m.language) infobar.innerHTML+=`<div class="info">🌍 ${m.language}</div>`;
+
+  galleryImgs=(m.images?.length)?m.images:[m.poster];
+  gallery.innerHTML="";
+  galleryImgs.forEach((img,i)=>{
+    const im=document.createElement("img");
+    im.src=img;
+    im.onclick=()=>openImg(i);
+    gallery.appendChild(im);
+  });
+
+  const rec=await fetch(API+"/api/popular").then(r=>r.json());
+  (rec.result||[]).slice(0,12).forEach(x=>{
+    const d=document.createElement("div");
+    d.className="card";
+    d.innerHTML=`<img src="${x.poster}"><div class="t">${x.title}</div>`;
+    d.onclick=()=>location.href="/detail.html?slug="+encodeURIComponent(x.slug);
+    recommended.appendChild(d);
+  });
+}
+loadDetail();
+</script>
+</body>
+  </html>
