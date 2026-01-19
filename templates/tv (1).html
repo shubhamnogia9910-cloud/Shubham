@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Metflic • TV Shows</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#06060a;
+  --card:#141018;
+  --pink:#ff6f91;
+  --muted:#cbbfd0;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:linear-gradient(180deg,#120812,#06060a);
+  color:#fff;
+  font-family:Inter;
+}
+.container{max-width:1200px;margin:auto;padding:18px}
+
+/* HEADER */
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.logo{
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+.logo .m{
+  width:44px;height:44px;
+  background:linear-gradient(135deg,#ff6f91,#ff9aa2);
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+}
+
+/* SEARCH */
+.search input{
+  padding:10px 14px;
+  border-radius:12px;
+  border:0;
+  outline:none;
+}
+
+/* HERO */
+.hero{
+  margin-top:24px;
+  padding:36px;
+  border-radius:24px;
+  background:
+    linear-gradient(to right,rgba(18,8,18,.95),rgba(18,8,18,.6)),
+    url("/static/tv-hero.jpg") center/cover;
+}
+.hero h1{font-size:38px;margin:0}
+.hero p{max-width:520px;color:#ffd9e3}
+
+/* FEED */
+.feed{
+  margin-top:40px;
+}
+.feed-card{
+  display:flex;
+  gap:26px;
+  margin-bottom:60px;
+  cursor:pointer;
+}
+.feed-card img{
+  width:280px;
+  height:420px;
+  object-fit:cover;
+  border-radius:20px;
+  flex-shrink:0;
+}
+.feed-info h2{
+  margin:0;
+  font-size:26px;
+}
+.feed-info small{
+  color:var(--muted);
+}
+.feed-info p{
+  margin-top:10px;
+  line-height:1.6;
+  color:#ffd9e3;
+  max-width:650px;
+}
+
+/* MOBILE */
+@media(max-width:900px){
+  .feed-card{
+    flex-direction:column;
+    gap:14px;
+  }
+  .feed-card img{
+    width:100%;
+    height:420px;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<header>
+  <div class="logo"><div class="m">TV</div><strong>TV Shows</strong></div>
+  <div class="search">
+    <input id="searchInput" placeholder="Search TV shows…">
+  </div>
+</header>
+
+<div class="hero">
+  <h1>TV Series 📺</h1>
+  <p>All popular & trending TV shows with full seasons & episodes.</p>
+</div>
+
+<div class="feed" id="feed"></div>
+
+</div>
+
+<script>
+const API = location.origin;
+const FALLBACK = "/static/placeholder.jpg";
+
+let page = 1;
+let loading = false;
+let mode = "home"; // home | search
+let query = "";
+
+function feedCard(m){
+  const d=document.createElement("div");
+  d.className="feed-card";
+  d.innerHTML=`
+    <img src="${m.poster||FALLBACK}">
+    <div class="feed-info">
+      <h2>${m.title}</h2>
+      <small>${m.year||""}</small>
+      <p>${m.overview || "No overview available."}</p>
+    </div>
+  `;
+  d.onclick=()=>location.href="/tv/"+m.slug;
+  return d;
+}
+
+async function loadHome(){
+  if(loading) return;
+  loading = true;
+
+  const r = await fetch(API+"/api/tv/home?page="+page).then(r=>r.json());
+  if(r.ok){
+    r.result.forEach(m=>feed.appendChild(feedCard(m)));
+    page++;
+  }
+  loading = false;
+}
+
+async function loadSearch(){
+  if(loading) return;
+  loading = true;
+
+  const r = await fetch(
+    API+"/api/tv/search?q="+encodeURIComponent(query)
+  ).then(r=>r.json());
+
+  if(r.ok){
+    r.result.forEach(m=>feed.appendChild(feedCard(m)));
+  }
+  loading = false;
+}
+
+searchInput.addEventListener("keydown",e=>{
+  if(e.key==="Enter"){
+    query = searchInput.value.trim();
+    if(query.length<2) return;
+
+    mode="search";
+    feed.innerHTML="";
+    page=1;
+    loadSearch();
+  }
+});
+
+window.addEventListener("scroll",()=>{
+  if(
+    mode==="home" &&
+    window.innerHeight + window.scrollY >
+    document.body.offsetHeight - 400
+  ){
+    loadHome();
+  }
+});
+
+loadHome();
+</script>
+
+</body>
+</html>
