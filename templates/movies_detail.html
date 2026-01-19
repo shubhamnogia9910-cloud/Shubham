@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Details • Metflic</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a14;
+            --card: #1a1a2e;
+            --accent: #e50914;
+            --text: #ffffff;
+            --muted: #a0a0c0;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .back-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+        }
+        .movie-header {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        .movie-poster {
+            width: 300px;
+            height: 450px;
+            border-radius: 16px;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        .movie-poster img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .movie-info {
+            flex: 1;
+            min-width: 300px;
+        }
+        .movie-title {
+            font-size: 42px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+        .movie-meta {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .meta-item {
+            background: rgba(255,255,255,0.1);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        .movie-overview {
+            font-size: 18px;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            color: #e0e0f0;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+        .btn {
+            padding: 15px 30px;
+            border-radius: 10px;
+            border: none;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #ff0a16;
+            transform: translateY(-2px);
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        .section-title {
+            font-size: 24px;
+            margin: 40px 0 20px;
+            font-weight: 700;
+        }
+        .cast-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        .cast-card {
+            background: var(--card);
+            border-radius: 10px;
+            overflow: hidden;
+            text-align: center;
+        }
+        .cast-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .cast-name {
+            padding: 10px;
+            font-weight: 600;
+        }
+        .cast-character {
+            padding: 0 10px 10px;
+            color: var(--muted);
+            font-size: 14px;
+        }
+        .similar-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        .similar-card {
+            background: var(--card);
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+        .similar-card:hover {
+            transform: translateY(-5px);
+        }
+        .similar-card img {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+        }
+        .similar-info {
+            padding: 15px;
+        }
+        .similar-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .similar-year {
+            color: var(--muted);
+            font-size: 14px;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--muted);
+            font-size: 18px;
+        }
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: var(--muted);
+            margin-top: 50px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .trailer-container {
+            margin: 30px 0;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #000;
+        }
+        .trailer-container iframe {
+            width: 100%;
+            height: 500px;
+            border: none;
+        }
+        @media (max-width: 768px) {
+            .movie-header {
+                flex-direction: column;
+            }
+            .movie-poster {
+                width: 100%;
+                max-width: 300px;
+                margin: 0 auto;
+            }
+            .movie-title {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="back-btn" onclick="history.back()">← Back</button>
+        
+        <div class="movie-header" id="movieHeader">
+            <div class="loading">Loading movie details...</div>
+        </div>
+        
+        <div class="action-buttons" id="actionButtons"></div>
+        
+        <div id="trailerSection" style="display: none;">
+            <h2 class="section-title">Trailer</h2>
+            <div class="trailer-container" id="trailerContainer"></div>
+        </div>
+        
+        <h2 class="section-title">Similar Movies</h2>
+        <div class="similar-grid" id="similarMovies"></div>
+        
+        <div class="loading" id="loading">Loading...</div>
+    </div>
+
+    <footer>
+        © 2024 Metflic • Premium Movie Experience
+    </footer>
+
+    <script>
+        const API_BASE = window.location.origin;
+        const FALLBACK_POSTER = 'https://via.placeholder.com/300x450/1a1a2e/ffffff?text=Movie';
+        
+        // Get movie slug from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const movieSlug = urlParams.get('slug') || window.location.pathname.split('/').pop();
+        
+        async function loadMovieDetails() {
+            try {
+                // Load movie details
+                const response = await fetch(`${API_BASE}/api/movie/${encodeURIComponent(movieSlug)}`);
+                const data = await response.json();
+                
+                if (data.ok && data.result) {
+                    const movie = data.result;
+                    
+                    // Update page title
+                    document.title = `${movie.title} ${movie.year ? `(${movie.year})` : ''} • Metflic`;
+                    
+                    // Create movie header
+                    document.getElementById('movieHeader').innerHTML = `
+                        <div class="movie-poster">
+                            <img src="${movie.poster || FALLBACK_POSTER}" alt="${movie.title}">
+                        </div>
+                        <div class="movie-info">
+                            <h1 class="movie-title">${movie.title}</h1>
+                            <div class="movie-meta">
+                                ${movie.year ? `<span class="meta-item">📅 ${movie.year}</span>` : ''}
+                                ${movie.rating ? `<span class="meta-item">⭐ ${movie.rating}/10</span>` : ''}
+                                ${movie.runtime ? `<span class="meta-item">⏱ ${movie.runtime} min</span>` : ''}
+                                ${movie.language ? `<span class="meta-item">🌍 ${movie.language}</span>` : ''}
+                            </div>
+                            <p class="movie-overview">${movie.overview || movie.caption || 'No description available.'}</p>
+                        </div>
+                    `;
+                    
+                    // Create action buttons
+                    document.getElementById('actionButtons').innerHTML = `
+                        <button class="btn btn-primary" onclick="downloadMovie()">
+                            ⬇ Download Movie
+                        </button>
+                        <button class="btn btn-secondary" onclick="openInTelegram()">
+                            📱 Open in Telegram
+                        </button>
+                        ${movie.trailer ? `
+                            <button class="btn btn-secondary" onclick="playTrailer()">
+                                ▶ Play Trailer
+                            </button>
+                        ` : ''}
+                    `;
+                    
+                    // Load similar movies
+                    loadSimilarMovies();
+                    
+                    // Hide loading
+                    document.getElementById('loading').style.display = 'none';
+                } else {
+                    document.getElementById('movieHeader').innerHTML = `
+                        <div class="loading">Movie not found</div>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading movie details:', error);
+                document.getElementById('movieHeader').innerHTML = `
+                    <div class="loading">Error loading movie details</div>
+                `;
+            }
+        }
+        
+        function downloadMovie() {
+            // Redirect to Telegram bot for download
+            window.open(`https://t.me/${BOT_USERNAME}?start=${encodeURIComponent(movieSlug)}`, '_blank');
+        }
+        
+        function openInTelegram() {
+            // Open in Telegram app
+            window.open(`tg://resolve?domain=${BOT_USERNAME}&start=${encodeURIComponent(movieSlug)}`, '_blank');
+        }
+        
+        function playTrailer() {
+            // This would be implemented based on the movie data
+            // For now, show a message
+            alert('Trailer playback would be implemented here');
+        }
+        
+        async function loadSimilarMovies() {
+            try {
+                // Load similar movies from TMDB or database
+                const response = await fetch(`${API_BASE}/api/popular`);
+                const data = await response.json();
+                
+                if (data.ok && data.result) {
+                    const similarGrid = document.getElementById('similarMovies');
+                    similarGrid.innerHTML = '';
+                    
+                    // Show first 6 similar movies
+                    data.result.slice(0, 6).forEach(movie => {
+                        const card = document.createElement('div');
+                        card.className = 'similar-card';
+                        card.innerHTML = `
+                            <img src="${movie.poster || FALLBACK_POSTER}" alt="${movie.title}">
+                            <div class="similar-info">
+                                <div class="similar-title">${movie.title}</div>
+                                <div class="similar-year">${movie.year || ''}</div>
+                            </div>
+                        `;
+                        card.onclick = () => {
+                            window.location.href = `/detail.html?slug=${encodeURIComponent(movie.slug)}`;
+                        };
+                        similarGrid.appendChild(card);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading similar movies:', error);
+            }
+        }
+        
+        // You need to define BOT_USERNAME from your backend or config
+        // For now, we'll get it from a global variable or hardcode
+        const BOT_USERNAME = window.BOT_USERNAME || "YourBotUsernameHere";
+        
+        // Load movie details on page load
+        window.addEventListener('DOMContentLoaded', loadMovieDetails);
+    </script>
+</body>
+  </html>
