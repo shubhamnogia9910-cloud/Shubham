@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Drama Detail</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+body{margin:0;background:#08060b;color:#fff;font-family:Inter}
+.container{max-width:1000px;margin:auto;padding:24px}
+.poster{
+  width:260px;height:380px;
+  background-size:cover;
+  border-radius:18px;
+}
+.wrap{display:flex;gap:30px;flex-wrap:wrap}
+.btn{
+  padding:14px 28px;
+  background:#ff6f91;
+  border-radius:14px;
+  font-weight:800;
+  border:0;
+  cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+<div class="wrap">
+  <div class="poster" id="poster"></div>
+  <div>
+    <h1 id="title"></h1>
+    <p id="overview"></p>
+    <button class="btn" id="download">Download / Watch</button>
+  </div>
+</div>
+</div>
+
+<script>
+const API = location.origin;
+const BOT = "CinemaWorldMoviesBot";
+const slug = "{{ slug }}";
+
+function tg(slug){
+  return `https://t.me/${BOT}?start=${encodeURIComponent(slug)}`;
+}
+
+async function load(){
+  const r = await fetch(API+"/api/drama/"+slug).then(r=>r.json());
+  if(!r.ok) return;
+
+  poster.style.backgroundImage = `url(${r.movie.poster})`;
+  title.textContent = r.movie.title;
+  overview.textContent = r.movie.overview || "";
+
+  download.onclick = ()=>location.href=tg(slug);
+}
+load();
+</script>
+</body>
+</html>
