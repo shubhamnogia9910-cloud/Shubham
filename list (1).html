@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Metflic • Browse</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --bg:#06090d;
+  --card:#0f1418;
+  --muted:#9aa4ad;
+  --accent:#e50914;
+  --glass:rgba(255,255,255,.07);
+  --max:1400px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:#06090d;
+  color:#e6eef3;
+  font-family:Inter,system-ui;
+}
+.container{max-width:var(--max);margin:auto;padding:18px}
+
+/* HEADER */
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.logo{display:flex;gap:10px;align-items:center}
+.logo .m{
+  width:42px;height:42px;
+  background:var(--accent);
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+}
+
+/* TOP BAR */
+.topbar{
+  margin-top:20px;
+  display:flex;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.search,select{
+  background:var(--glass);
+  border-radius:10px;
+  padding:10px 14px;
+  border:0;
+  color:#fff;
+  outline:none;
+}
+.search input{
+  background:none;
+  border:0;
+  color:#fff;
+  outline:none;
+  width:220px;
+}
+
+/* GRID */
+.grid{
+  margin-top:22px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
+  gap:18px;
+}
+.card{
+  background:var(--card);
+  border-radius:12px;
+  overflow:hidden;
+  cursor:pointer;
+  transition:.25s;
+}
+.card:hover{transform:scale(1.04)}
+.card img{
+  width:100%;
+  height:260px;
+  object-fit:cover;
+}
+.card .info{padding:10px}
+.card .t{font-size:14px;font-weight:700}
+.card .y{font-size:12px;color:var(--muted)}
+
+/* PAGINATION */
+.pagination{
+  margin:35px 0 10px;
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.page-btn{
+  min-width:40px;
+  padding:8px 12px;
+  background:#111;
+  border-radius:8px;
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+  border:1px solid #222;
+}
+.page-btn.active{
+  background:var(--accent);
+  border-color:var(--accent);
+}
+.page-btn.disabled{
+  opacity:.4;
+  pointer-events:none;
+}
+
+.loader{
+  text-align:center;
+  color:var(--muted);
+  padding:20px;
+}
+
+footer{
+  text-align:center;
+  color:var(--muted);
+  margin:40px 0 20px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<header>
+  <div class="logo">
+    <div class="m">M</div>
+    <strong>Metflic</strong>
+  </div>
+</header>
+
+<div class="topbar">
+  <div class="search">
+    🔍 <input id="searchInput" placeholder="Search movies...">
+  </div>
+
+  <select id="sortSelect">
+    <option value="latest">Latest</option>
+    <option value="popular">Popular</option>
+    <option value="oldest">Oldest</option>
+  </select>
+
+  <select id="yearSelect">
+    <option value="">All Years</option>
+  </select>
+</div>
+
+<div class="grid" id="grid"></div>
+<div class="loader" id="loader">Loading…</div>
+
+<div class="pagination" id="pagination"></div>
+
+<footer>© Metflic • Netflix × Boliflix Experience</footer>
+</div>
+
+<script>
+const API = location.origin;
+const FALLBACK="/static/placeholder.jpg";
+
+const qs=new URLSearchParams(location.search);
+const type=qs.get("type")||"movies";
+
+let page=1;
+let query="";
+let sort="latest";
+let year="";
+
+/* YEAR OPTIONS */
+for(let y=new Date().getFullYear();y>=1980;y--){
+  yearSelect.innerHTML+=`<option value="${y}">${y}</option>`;
+}
+
+/* LOAD PAGE */
+async function load(p=1){
+  page=p;
+  grid.innerHTML="";
+  loader.style.display="block";
+
+  const url=`/api/list?type=${type}&page=${page}&sort=${sort}&year=${year}&q=${encodeURIComponent(query)}`;
+  const r=await fetch(API+url).then(r=>r.json());
+
+  const list=r.result||[];
+  loader.style.display="none";
+
+  list.forEach(m=>{
+    const d=document.createElement("div");
+    d.className="card";
+    d.innerHTML=`
+      <img src="${m.poster||FALLBACK}">
+      <div class="info">
+        <div class="t">${m.title}</div>
+        <div class="y">${m.year||""}</div>
+      </div>`;
+    d.onclick=()=>location.href="/detail.html?slug="+encodeURIComponent(m.slug);
+    grid.appendChild(d);
+  });
+
+  renderPagination(list.length);
+}
+
+/* PAGINATION UI */
+function renderPagination(count){
+  const box=document.getElementById("pagination");
+  box.innerHTML="";
+
+  const prev=document.createElement("div");
+  prev.className="page-btn"+(page===1?" disabled":"");
+  prev.textContent="‹";
+  prev.onclick=()=>load(page-1);
+  box.appendChild(prev);
+
+  for(let i=Math.max(1,page-2);i<=page+2;i++){
+    const b=document.createElement("div");
+    b.className="page-btn"+(i===page?" active":"");
+    b.textContent=i;
+    b.onclick=()=>load(i);
+    box.appendChild(b);
+  }
+
+  const next=document.createElement("div");
+  next.className="page-btn"+(count<20?" disabled":"");
+  next.textContent="›";
+  next.onclick=()=>load(page+1);
+  box.appendChild(next);
+}
+
+/* SEARCH */
+let t=null;
+searchInput.oninput=e=>{
+  clearTimeout(t);
+  t=setTimeout(()=>{
+    query=e.target.value.trim();
+    load(1);
+  },400);
+};
+
+/* FILTERS */
+sortSelect.onchange=e=>{
+  sort=e.target.value;
+  load(1);
+};
+yearSelect.onchange=e=>{
+  year=e.target.value;
+  load(1);
+};
+
+load(1);
+</script>
+
+</body>
+  </html>
