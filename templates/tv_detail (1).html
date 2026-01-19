@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>TV Detail</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+<style>
+body{
+  margin:0;
+  background:#08060b;
+  color:#fff;
+  font-family:Inter;
+}
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:20px;
+}
+h1{margin-bottom:6px}
+p{color:#d8cfe0;max-width:900px}
+
+.season{
+  margin-top:34px;
+}
+.season h3{
+  margin-bottom:10px;
+}
+
+.ep{
+  padding:14px 16px;
+  background:#141018;
+  border-radius:12px;
+  margin-top:10px;
+  cursor:pointer;
+  transition:.2s;
+}
+.ep:hover{
+  background:#1e1822;
+  transform:translateX(4px);
+}
+.ep small{
+  display:block;
+  color:#cbbfd0;
+  margin-top:4px;
+  font-size:13px;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1 id="title"></h1>
+<p id="overview"></p>
+
+<div id="seasons"></div>
+
+</div>
+
+<script>
+const API = location.origin;
+const BOT = "CinemaWorldMoviesBot";   // 🔥 your bot username
+const slug = "{{ slug }}";
+
+function tgLink(payload){
+  return `https://t.me/${BOT}?start=${encodeURIComponent(payload)}`;
+}
+
+async function loadDetail(){
+  const r = await fetch(API+"/api/tv/"+slug).then(r=>r.json());
+  if(!r.ok) return;
+
+  title.textContent = r.show.title;
+  overview.textContent = r.show.overview || "";
+
+  r.seasons.forEach(s=>{
+    const d=document.createElement("div");
+    d.className="season";
+    d.innerHTML=`<h3>Season ${s.season_number}</h3>`;
+
+    s.episodes.forEach(e=>{
+      const ep=document.createElement("div");
+      ep.className="ep";
+
+      ep.innerHTML = `
+        <strong>Episode ${e.episode_number} • ${e.title}</strong>
+        <small>Click to watch / download</small>
+      `;
+
+      // 🔥 TELEGRAM DIRECT SEND
+      ep.onclick = ()=>{
+        const payload = `tv-${r.show.id}-s${s.season_number}-e${e.episode_number}`;
+        location.href = tgLink(payload);
+      };
+
+      d.appendChild(ep);
+    });
+
+    seasons.appendChild(d);
+  });
+}
+
+loadDetail();
+</script>
+</body>
+</html>
